@@ -138,7 +138,7 @@ params:add_control(\"amp\", \"amp\", controlspec.new(0.0, 1.0, 'lin', 0, 0.5, 'a
 params:set_action(\"amp\", function(x) engine.amp(x) end)
 
 -- Panning
-params:add_control(\"pan\", \"pan\", controlspec.new(-1.0, 1.0, 'lin', 0, 0.5, 'pans'))
+params:add_control(\"pan\", \"pan\", controlspec.new(-1.0, 1.0, 'lin', 0, 0.0, 'pans'))
 params:set_action(\"pan\", function(x) engine.pan(x) end)
 
 -- initialization
@@ -146,11 +146,9 @@ function init()
 	engine.load(\"$ENGINENAME\")
 end
 
-
 -- key actions: n = number, z = state
 function key(n,z)
 end
-
 
 -- encoder actions: n = number, d = delta
 function enc(n,d)
@@ -171,7 +169,6 @@ end
 -- deinitialization
 function cleanup()
 end
-
 " > $LUAFILE
 }
 
