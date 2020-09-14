@@ -125,12 +125,10 @@ echo "Engine_$ENGINENAME : CroneEngine {
 }
 
 function make_main_lua() {
-echo "-- scriptname: $PROJECTNAME
--- v1.0.0 @$USER
+if [[ ! -z "$ENGINENAME" ]]; then
 
-local viewport = { width = 128, height = 64, frame = 0 }
-
--- Parameters for custom engine
+# Top part of generated LUA file
+TOPCODE="-- Parameters for custom engine
 engine.name = \"$ENGINENAME\"
 
 -- Amplitude
@@ -146,10 +144,7 @@ function init()
 	engine.load(\"$ENGINENAME\")
 end
 
--- key actions: n = number, z = state
-function key(n,z)
-end
-
+local viewport = { width = 128, height = 64, frame = 0 }
 -- encoder actions: n = number, d = delta
 function enc(n,d)
 	if n == 2 then
@@ -158,10 +153,40 @@ function enc(n,d)
 		params:delta(\"pan\", d)
 	end
 end
+"
+else
+TOPCODE="engine.name = \"TestSine\"
+
+-- initialization
+function init()
+	engine.hz(100)
+end
+
+-- key actions: n = number, z = state
+function key(n,z)
+	print(\"Key \" .. n .. \" pressed: \" .. z)
+end
+
+
+-- encoder actions: n = number, d = delta
+function enc(n,d)
+	print(\"Enc \" .. n .. \" touched: \" .. d)
+end
+"
+fi
+
+# And then joined with the bottom part
+echo "-- scriptname: $PROJECTNAME
+-- v1.0.0 @$USER
+$TOPCODE
+
+-- key actions: n = number, z = state
+function key(n,z)
+end
 
 function redraw()
 	screen.clear()
-	screen.move(viewport.width/2,viewport.height/2)
+	screen.move(0,viewport.height/2)
 	screen.text(\"this is $PROJECTNAME\")
 	screen.update()
 end
