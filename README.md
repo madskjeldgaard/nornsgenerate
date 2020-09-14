@@ -39,7 +39,7 @@ After rebooting the norns, this should result in a custom engine now available c
 local viewport = { width = 128, height = 64, frame = 0 }
 
 -- Parameters for custom engine
-engine.name = "Yo"
+engine.name = "TurboMegaOverdrive"
 
 -- Amplitude
 params:add_control("amp", "amp", controlspec.new(0.0, 1.0, 'lin', 0, 0.5, 'amps'))
@@ -51,7 +51,7 @@ params:set_action("pan", function(x) engine.pan(x) end)
 
 -- initialization
 function init()
-	engine.load("Yo")
+	engine.load("TurboMegaOverdrive")
 end
 
 
