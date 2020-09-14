@@ -1,0 +1,193 @@
+#!/usr/bin/bash 
+######################################################################
+#
+# NORNS PROJECT GENERATOR
+# by Mads Kjeldgaard, 2020
+#
+# usage:
+# nornsgenerate <projectname> <enginename> <target_dir>
+#
+# If no enginename is supplied, it will not generate an engine file
+# If no target dir is supplied it will use the result of `cwd`
+#
+######################################################################
+
+PROJECTNAME=$1
+ENGINENAME=$2
+
+TARGETDIR="`pwd`"
+PROJECTDIR="$PROJECTNAME"
+ENGINE="lib/Engine_$ENGINENAME.sc"
+LUAFILE="$PROJECTNAME.lua"
+
+function main() {
+	if [[ ! -z "$PROJECTNAME" ]] ; then
+		greeting
+
+		set_target_dir
+
+		echo "Creating Norns project $PROJECTNAME in $PROJECTDIR"
+
+		mkdir $PROJECTDIR
+		cd $PROJECTDIR
+
+		echo "making main lua file $LUAFILE"
+		make_main_lua
+	else
+		echo "No project name supplied... exiting"
+		exit 1
+	fi
+
+	if [[ ! -z "$ENGINENAME" ]]; then
+		echo "making supercollider engine file $ENGINE"
+		make_engine	
+	fi
+
+	initgit
+
+	echo "Done..."
+}
+
+function initgit(){
+	if [[ -f "$(which git)" ]]; then 
+		git init; 
+		git add .
+		git commit . -m "first"
+	fi
+}
+
+function set_target_dir() {
+	if [[ ! -z "$3" ]]; then
+		TARGETDIR="$3"
+		PROJECTDIR="$TARGETDIR/$PROJECTNAME"
+	fi
+}
+
+function make_engine() {
+
+mkdir lib
+
+echo "Engine_$ENGINENAME : CroneEngine {
+	var synth;
+
+	*new { arg context, doneCallback;
+		^super.new(context, doneCallback);
+	}
+
+	alloc {
+		SynthDef.new(\boringvolume, {|inL=0, inR=1, out=0, amp=0.5, pan=0|
+			var sig = In.ar([inL, inR]);
+			sig = sig * amp;
+			sig = Balance2.ar(sig[0], sig[1], pan);
+			Out.ar(out, sig)
+		}).add;
+
+		// Sync with audio norns' sc server
+		context.server.sync;
+
+		/*
+		The audio context's fx group:
+		context.xg
+
+		The in bus:
+		context.in_b
+
+		The out bus:
+		context.out_b
+		*/
+
+		synth = Synth.new(\boringvolume, 
+			[
+				\inL, context.in_b[0].index,
+				\inR, context.in_b[1].index,
+				\out, context.out_b.index 
+			],
+			target: context.xg // The fx group of Crone
+		);
+
+		// Expose commands to lua like this:
+		this.addCommand(\"amp\", \"f\", {|msg|
+			var val = msg[1];
+			synth.set(\amp, val)
+		});
+
+		this.addCommand(\"pan\", \"f\", {|msg|
+			var val = msg[1];
+			synth.set(\pan, val)
+		});
+
+	}
+
+	free {
+		synth.free;
+	}
+}" > $ENGINE
+}
+
+function make_main_lua() {
+echo "-- scriptname: $PROJECTNAME
+-- v1.0.0 @$USER
+
+local viewport = { width = 128, height = 64, frame = 0 }
+
+-- Parameters for custom engine
+engine.name = \"$ENGINENAME\"
+
+-- Amplitude
+params:add_control(\"amp\", \"amp\", controlspec.new(0.0, 1.0, 'lin', 0, 0.5, 'amps'))
+params:set_action(\"amp\", function(x) engine.amp(x) end)
+
+-- Panning
+params:add_control(\"pan\", \"pan\", controlspec.new(-1.0, 1.0, 'lin', 0, 0.5, 'pans'))
+params:set_action(\"pan\", function(x) engine.pan(x) end)
+
+-- initialization
+function init()
+	engine.load(\"$ENGINENAME\")
+end
+
+
+-- key actions: n = number, z = state
+function key(n,z)
+end
+
+
+-- encoder actions: n = number, d = delta
+function enc(n,d)
+	if n == 2 then
+		params:delta(\"amp\", d)
+	elseif n == 3 then
+		params:delta(\"pan\", d)
+	end
+end
+
+function redraw()
+	screen.clear()
+	screen.move(viewport.width/2,viewport.height/2)
+	screen.text(\"this is $PROJECTNAME\")
+	screen.update()
+end
+
+-- deinitialization
+function cleanup()
+end
+
+" > $LUAFILE
+}
+
+function greeting(){
+	echo "
+@@@  @@@   @@@@@@   @@@@@@@   @@@  @@@   @@@@@@   
+@@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@ @@@  @@@@@@@   
+@@!@!@@@  @@!  @@@  @@!  @@@  @@!@!@@@  !@@       
+!@!!@!@!  !@!  @!@  !@!  @!@  !@!!@!@!  !@!       
+@!@ !!@!  @!@  !@!  @!@!!@!   @!@ !!@!  !!@@!!    
+!@!  !!!  !@!  !!!  !!@!@!    !@!  !!!   !!@!!!   
+!!:  !!!  !!:  !!!  !!: :!!   !!:  !!!       !:!  
+:!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!      !:!   
+ ::   ::  ::::: ::  ::   :::   ::   ::  :::: ::   
+::    :    : :  :    :   : :  ::    :   :: : :    
+	"
+}
+
+main
