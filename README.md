@@ -23,8 +23,11 @@ nornsgenerate howdy TurboMegaOverdrive /home/mads/
 will generate a project called `howdy` in a folder of the same name in `/home/mads`.
 
 The project structure will look like this:
-- howdy.lua
-- lib/Engine_TurboMegaOverdrive.sc
+
+```
+howdy.lua
+lib/Engine_TurboMegaOverdrive.sc
+```
 
 After rebooting the norns, this should result in a custom engine now available called TurboMegaOverdrive.
 
