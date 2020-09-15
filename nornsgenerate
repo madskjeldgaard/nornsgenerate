@@ -220,8 +220,6 @@ howdy/lib/Engine_TurboMegaOverdrive.sc
 }
 
 if [ $# -eq 0 ] || [ "$1" == "-h" ]; then
-	echo "$#"
-	echo "$1"
 	echo_help
 	exit 1
 else 
