@@ -4,18 +4,11 @@
 # NORNS PROJECT GENERATOR
 # by Mads Kjeldgaard, 2020
 #
-# usage:
-# nornsgenerate <projectname> <enginename> <target_dir>
-#
-# If no enginename is supplied, it will not generate an engine file
-# If no target dir is supplied it will use the result of `cwd`
-#
 ######################################################################
 
 PROJECTNAME=$1
 ENGINENAME=$2
 
-TARGETDIR="`pwd`"
 PROJECTDIR="$PROJECTNAME"
 ENGINE="lib/Engine_$ENGINENAME.sc"
 LUAFILE="$PROJECTNAME.lua"
@@ -53,13 +46,6 @@ function initgit(){
 		git init; 
 		git add .
 		git commit . -m "first"
-	fi
-}
-
-function set_target_dir() {
-	if [[ ! -z "$3" ]]; then
-		TARGETDIR="$3"
-		PROJECTDIR="$TARGETDIR/$PROJECTNAME"
 	fi
 }
 
@@ -198,7 +184,7 @@ end
 }
 
 function greeting(){
-	echo "
+echo "
 @@@  @@@   @@@@@@   @@@@@@@   @@@  @@@   @@@@@@   
 @@@@ @@@  @@@@@@@@  @@@@@@@@  @@@@ @@@  @@@@@@@   
 @@!@!@@@  @@!  @@@  @@!  @@@  @@!@!@@@  !@@       
@@ -209,7 +195,35 @@ function greeting(){
 :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!      !:!   
  ::   ::  ::::: ::  ::   :::   ::   ::  :::: ::   
 ::    :    : :  :    :   : :  ::    :   :: : :    
-	"
+"
 }
 
-main
+function echo_help(){
+echo "
+NORNS PROJECT GENERATOR
+
+usage:
+
+nornsgenerate projectname [enginename]
+
+projectname 		Project name (mandatory)
+enginename 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
+
+EXAMPLE:
+nornsgenerate howdy TurboMegaOverdrive
+
+Will result in the following project structure:
+
+howdy/howdy.lua
+howdy/lib/Engine_TurboMegaOverdrive.sc
+"
+}
+
+if [ $# -eq 0 ] || [ "$1" == "-h" ]; then
+	echo "$#"
+	echo "$1"
+	echo_help
+	exit 1
+else 
+	main
+fi
