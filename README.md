@@ -9,9 +9,11 @@ The tool generates a basic main lua file and optionally a custom SuperCollider e
 ```bash
 nornsgenerate projectname [enginename]
 ```
-projectname 		Project name (mandatory)
-enginename 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
--h 					Show help
+Parameters:
+
+- projectname 		Project name (mandatory)
+- enginename 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
+- -h 					Show help
 
 ### Example
 nornsgenerate howdy TurboMegaOverdrive
