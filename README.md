@@ -11,9 +11,9 @@ nornsgenerate projectname [enginename]
 ```
 Parameters:
 
-- projectname 		Project name (mandatory)
-- enginename 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
-- -h 					Show help
+- projectname: 		Project name (mandatory)
+- enginename: 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
+- -h: 					Show help
 
 ### Example
 nornsgenerate howdy TurboMegaOverdrive
