@@ -17,30 +17,39 @@ function main() {
 	if [[ ! -z "$PROJECTNAME" ]] ; then
 		greeting
 
-		set_target_dir
-
 		echo "Creating Norns project $PROJECTNAME in $PROJECTDIR"
 
+		# Create directory
 		mkdir $PROJECTDIR
 		cd $PROJECTDIR
 
+		# LUA FILE
 		echo "making main lua file $LUAFILE"
 		make_main_lua
+
+		# README
+		echo "making README file"
+		echo "# $PROJECTNAME" >> README.md
+		echo "A project for the monome norns sound computing platform" >> README.md
+
+		# Create engine
+		if [[ ! -z "$ENGINENAME" ]]; then
+			echo "making supercollider engine file $ENGINE"
+			make_engine	
+		fi
+
+		initgit
+
+		echo "Done..."
+
 	else
 		echo "No project name supplied... exiting"
 		exit 1
 	fi
 
-	if [[ ! -z "$ENGINENAME" ]]; then
-		echo "making supercollider engine file $ENGINE"
-		make_engine	
-	fi
-
-	initgit
-
-	echo "Done..."
 }
 
+# If git is on the system, initialize a git repo and make the first commit
 function initgit(){
 	if [[ -f "$(which git)" ]]; then 
 		git init; 
@@ -49,8 +58,8 @@ function initgit(){
 	fi
 }
 
+# Create engine file
 function make_engine() {
-
 mkdir lib
 
 echo "Engine_$ENGINENAME : CroneEngine {
@@ -110,6 +119,7 @@ echo "Engine_$ENGINENAME : CroneEngine {
 }" > $ENGINE
 }
 
+# Create lua file
 function make_main_lua() {
 if [[ ! -z "$ENGINENAME" ]]; then
 
@@ -208,6 +218,8 @@ nornsgenerate projectname [enginename]
 
 projectname 		Project name (mandatory)
 enginename 			If supplied, will create a lib directory with a SuperCollider Engine inside of it
+-h 					Show help
+
 
 EXAMPLE:
 nornsgenerate howdy TurboMegaOverdrive
